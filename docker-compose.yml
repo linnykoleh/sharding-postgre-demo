@@ -1,0 +1,77 @@
+version: '3'
+services:
+  postgresql-b:
+    image: postgres:latest
+#    image: citusdata/citus:latest
+    container_name: postgresql-b
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: books_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql-b-data:/var/lib/postgresql/data
+      - ./sharding/sharding_fdw.sql:/docker-entrypoint-initdb.d/sharding_fdw.sql # FDW sharding
+#      - ./sharding/sharding_citus.sql:/docker-entrypoint-initdb.d/sharding_citus.sql # Citus sharding
+    depends_on:
+      - postgresql-b1
+      - postgresql-b2
+    networks:
+      - shard-network
+
+  postgresql-b1:
+    image: postgres:latest
+#    image: citusdata/citus:latest
+    container_name: postgresql-b1
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: books_db_1
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgresql-b1-data:/var/lib/postgresql/data
+      - ./init/create_books_table.sql:/docker-entrypoint-initdb.d/create_books_table.sql
+    networks:
+      - shard-network
+
+  postgresql-b2:
+    image: postgres:latest
+#    image: citusdata/citus:latest
+    container_name: postgresql-b2
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: books_db_2
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgresql-b2-data:/var/lib/postgresql/data
+      - ./init/create_books_table.sql:/docker-entrypoint-initdb.d/create_books_table.sql
+    networks:
+      - shard-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+#      - pgadmin-data:/var/lib/pgadmin
+      - ./pgadmin-data:/var/lib/pgadmin
+    networks:
+      - shard-network
+
+volumes:
+  postgresql-b-data:
+  postgresql-b1-data:
+  postgresql-b2-data:
+#  pgadmin-data:
+
+networks:
+  shard-network:
+    driver: bridge
