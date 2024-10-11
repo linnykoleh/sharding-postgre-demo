@@ -1,4 +1,4 @@
--- Benchmark for data insertion
+-- Benchmark for insertion
 DO $$
 BEGIN
     RAISE NOTICE 'Benchmarking insert';
@@ -11,7 +11,7 @@ BEGIN
     FROM generate_series(1, 1000000) AS i;
 END $$;
 
--- Benchmark for data reading
+-- Benchmark for reading
 DO $$
 BEGIN
     RAISE NOTICE 'Benchmarking read';

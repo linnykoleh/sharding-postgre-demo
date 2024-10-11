@@ -1,4 +1,3 @@
--- Create a books table on each sharded instance
 CREATE TABLE IF NOT EXISTS books (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
